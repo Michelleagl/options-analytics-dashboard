@@ -40,14 +40,22 @@ CONTRACT_MULTIPLIER = 100
 if "portfolio_legs" not in st.session_state:
     st.session_state["portfolio_legs"] = []
 
-_, _, all_expiries = get_underlying_info(ctx.ticker)
+try:
+    _, _, all_expiries = get_underlying_info(ctx.ticker)
+except Exception as e:
+    st.error(f"No se pudo descargar la lista de vencimientos para {ctx.ticker}: {e}")
+    st.stop()
 
 st.markdown("##### Agregar contrato")
 with st.form("add_leg_form", clear_on_submit=True):
     fc1, fc2, fc3, fc4, fc5 = st.columns([1.3, 1, 1.3, 1, 1])
     leg_expiry = fc1.selectbox("Vencimiento", all_expiries, index=min(3, len(all_expiries) - 1))
     leg_type = fc2.selectbox("Tipo", ["call", "put"])
-    leg_chain = get_clean_chain(ctx.ticker, leg_expiry)
+    try:
+        leg_chain = get_clean_chain(ctx.ticker, leg_expiry)
+    except Exception as e:
+        leg_chain = pd.DataFrame(columns=["strike", "type"])
+        fc3.warning(f"No se pudo descargar este vencimiento: {e}")
     leg_strikes = sorted(leg_chain[leg_chain["type"] == leg_type]["strike"].unique().tolist())
     if leg_strikes:
         atm_idx = int(np.argmin(np.abs(np.array(leg_strikes) - ctx.S0)))
@@ -95,7 +103,10 @@ if len(legs) < 2:
 
 @st.cache_data(ttl=1800, show_spinner=False)
 def _price_and_greeks_for_leg(ticker, expiry, strike, option_type, S0, r, q):
-    chain = get_clean_chain(ticker, expiry)
+    try:
+        chain = get_clean_chain(ticker, expiry)
+    except Exception as e:
+        return dict(failed=True, error=str(e))
     tau = tau_from_expiry(expiry)
     sub = chain[chain["type"] == option_type]
     atm_row = sub.iloc[(sub["strike"] - S0).abs().argsort()[:1]].iloc[0]
@@ -109,11 +120,11 @@ def _price_and_greeks_for_leg(ticker, expiry, strike, option_type, S0, r, q):
 
     params, _ = calibrate_heston_for(ticker, expiry, S0, r, q)
     if params is None:
-        return dict(price_bs=price_bs, g_bs=g_bs, price_heston=np.nan, g_heston=None, calibrated=False)
+        return dict(price_bs=price_bs, g_bs=g_bs, price_heston=np.nan, g_heston=None, calibrated=False, failed=False)
     v0, theta, kappa, xi, rho = params
     price_heston = heston_price(S0, strike, r, q, tau, v0, kappa, theta, xi, rho, option_type)
     g_heston = heston_greeks_fd(S0, strike, r, q, tau, v0, kappa, theta, xi, rho, option_type, full=True)
-    return dict(price_bs=price_bs, g_bs=g_bs, price_heston=price_heston, g_heston=g_heston, calibrated=True)
+    return dict(price_bs=price_bs, g_bs=g_bs, price_heston=price_heston, g_heston=g_heston, calibrated=True, failed=False)
 
 
 rows_bs, rows_heston = [], []
@@ -126,6 +137,13 @@ with st.spinner("Precificando cada contrato del libro (B&S y Heston)..."):
         sign = 1 if leg["side"] == "Largo" else -1
         weight = sign * leg["qty"] * CONTRACT_MULTIPLIER
         res = _price_and_greeks_for_leg(ctx.ticker, leg["expiry"], leg["strike"], leg["type"], ctx.S0, ctx.r, ctx.q)
+
+        if res.get("failed"):
+            st.warning(
+                f"Contrato #{i} ({leg['type'].upper()} K={leg['strike']:g} exp {leg['expiry']}) no se pudo "
+                f"descargar: {res['error']}. Se omite del libro."
+            )
+            continue
 
         rows_bs.append({"#": i, "Precio": res["price_bs"], **{k: res["g_bs"][k] for k in net_bs}})
         for k in net_bs:

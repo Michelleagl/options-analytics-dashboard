@@ -94,7 +94,15 @@ def render_sidebar_controls():
     option_type = st.sidebar.radio("Tipo de contrato", ["call", "put"], horizontal=True, key="type_radio")
 
     with st.spinner("Descargando y limpiando cadena de opciones..."):
-        chain_df = get_clean_chain(ticker, expiry)
+        try:
+            chain_df = get_clean_chain(ticker, expiry)
+        except Exception as e:
+            st.sidebar.error(
+                f"No se pudo descargar la cadena de opciones para {ticker} {expiry}: {e}. "
+                "Yahoo Finance a veces limita las solicitudes desde servidores en la nube — "
+                "intenta de nuevo en unos segundos."
+            )
+            st.stop()
 
     if chain_df.empty:
         st.sidebar.warning("No quedaron quotes líquidas tras la limpieza para este vencimiento.")
@@ -151,7 +159,10 @@ def calibrate_heston_for(ticker, expiry, S0, r, q):
     outside an AppContext too, e.g. per-leg in the Portfolio page where each leg can
     have its own expiry. Returns (params, fit_obj) or (None, None) if there weren't
     enough liquid quotes to calibrate."""
-    df = get_clean_chain(ticker, expiry)
+    try:
+        df = get_clean_chain(ticker, expiry)
+    except Exception:
+        return None, None
     tau_ = tau_from_expiry(expiry)
     moneyness = df["strike"] / S0
     m = df[(moneyness >= 0.80) & (moneyness <= 1.20) & (df["mid"] > 0.05)]

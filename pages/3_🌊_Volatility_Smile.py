@@ -104,7 +104,11 @@ st.caption(
 show_surface = st.checkbox("Construir superficie 3D (mercado) a través de vencimientos cercanos")
 
 if show_surface:
-    _, _, all_expiries = get_underlying_info(ctx.ticker)
+    try:
+        _, _, all_expiries = get_underlying_info(ctx.ticker)
+    except Exception as e:
+        st.error(f"No se pudo descargar la lista de vencimientos para {ctx.ticker}: {e}")
+        st.stop()
     if ctx.expiry in all_expiries:
         start_idx = all_expiries.index(ctx.expiry)
     else:
