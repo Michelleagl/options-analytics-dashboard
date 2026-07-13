@@ -18,7 +18,7 @@ from models.recommendation import recommend_engine
 from utils.styling import inject_css
 from utils.context import render_sidebar_controls, render_ticker_strip, get_heston_calibration
 
-st.set_page_config(page_title="Live Defense · Options Analytics Dashboard", page_icon="🎯", layout="wide")
+st.set_page_config(page_title="Live Defense · Options Analytics Dashboard", page_icon="◆", layout="wide")
 inject_css()
 
 ctx = render_sidebar_controls()
@@ -27,7 +27,7 @@ render_ticker_strip(ctx)
 st.markdown(
     f"""
     <div class="desk-header">
-        <h1>🎯 Live Defense</h1>
+        <h1>Live Defense</h1>
         <p>Pantalla única — precio, Greeks y recomendación para el contrato que te pidan en el momento</p>
     </div>
     """,

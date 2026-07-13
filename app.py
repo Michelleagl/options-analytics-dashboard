@@ -50,16 +50,16 @@ st.markdown(
 st.write("")
 
 pages = [
-    ("📈 Pricing", "Precio de B&S y Heston lado a lado con el mercado, error absoluto/relativo por motor."),
-    ("📊 Greeks", "Δ, Γ, ν, Θ, ρ, Vanna y Volga — de forma cerrada en B&S, bump-and-reprice en Heston."),
-    ("🌊 Volatility Smile", "La sonrisa de volatilidad: mercado vs B&S (línea plana) vs Heston calibrado, "
-                              "más una superficie 3D bonus a través de varios vencimientos."),
-    ("⚙ Calibration", "Parámetros calibrados de Heston, condición de Feller, y un chequeo de estabilidad "
-                        "día-a-día de la calibración."),
-    ("💼 Portfolio", "Arma un libro de 2-4 contratos y ve las Greeks netas, el hedge de Delta y el costo "
-                       "de mantenerte Gamma-neutral."),
-    ("🎯 Live Defense", "Pantalla única para la defensa en vivo: precio, Greeks, motor recomendado y "
-                          "justificación para cualquier contrato que pida el profesor."),
+    ("Pricing", "Precio de B&S y Heston lado a lado con el mercado, error absoluto/relativo por motor."),
+    ("Greeks", "Δ, Γ, ν, Θ, ρ, Vanna y Volga — de forma cerrada en B&S, bump-and-reprice en Heston."),
+    ("Volatility Smile", "La sonrisa de volatilidad: mercado vs B&S (línea plana) vs Heston calibrado, "
+                          "más una superficie 3D bonus a través de varios vencimientos."),
+    ("Calibration", "Parámetros calibrados de Heston, condición de Feller, y un chequeo de estabilidad "
+                     "día-a-día de la calibración."),
+    ("Portfolio", "Arma un libro de 2-4 contratos y ve las Greeks netas, el hedge de Delta y el costo "
+                   "de mantenerte Gamma-neutral."),
+    ("Live Defense", "Pantalla única para la defensa en vivo: precio, Greeks, motor recomendado y "
+                       "justificación para cualquier contrato que pida el profesor."),
 ]
 
 cols = st.columns(3)

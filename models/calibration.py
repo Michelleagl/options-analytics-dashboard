@@ -1,6 +1,6 @@
 """Heston calibration: two-stage global (Latin Hypercube) + local (Levenberg-Marquardt)
 optimisation, Feller-condition check, and a local day-over-day snapshot log used for
-the calibration-stability check (see pages/4_⚙️_Calibration.py).
+the calibration-stability check (see pages/4_Calibration.py).
 
 Limitation, stated explicitly: free data sources (yfinance) only give a live snapshot,
 not historical option chains. "Re-calibrate on two different days" therefore means the
@@ -25,6 +25,37 @@ HESTON_NAMES = ["v0", "theta", "kappa", "xi", "rho"]
 _HISTORY_DIR = Path(__file__).resolve().parent.parent / ".calibration_history"
 
 
+def heston_loss(params, market_rows, S0, r, q):
+    """Sum of spread-weighted squared price residuals -- the calibration objective.
+    Exposed standalone (not just as a closure inside calibrate_heston) so it can also
+    drive the kappa-xi identifiability valley plot on pages/4_Calibration.py, the same
+    way the course notebook reuses its loss() for both calibration and diagnostics."""
+    v0, theta, kappa, xi, rho = params
+    total = 0.0
+    for K, tau, price_mkt, spread, otype in market_rows:
+        w = 1.0 / max(spread, 0.01)
+        try:
+            pm = heston_price(S0, K, r, q, tau, v0, kappa, theta, xi, rho, otype)
+            total += (w * (pm - price_mkt)) ** 2
+        except Exception:
+            total += 1e6
+    return total
+
+
+def build_calibration_rows(chain_df, S0, tau):
+    """Select the liquid, near-the-money quotes calibrate_heston should fit for one
+    expiry: moneyness 0.80-1.20 with mid > 0.05, relaxed if that leaves too few rows.
+    Returns (K, tau, price_mkt, spread, option_type) tuples."""
+    moneyness = chain_df["strike"] / S0
+    m = chain_df[(moneyness >= 0.80) & (moneyness <= 1.20) & (chain_df["mid"] > 0.05)]
+    if len(m) < 5:
+        m = chain_df[chain_df["mid"] > 0.02]  # relax if there are too few quotes
+    return [
+        (row["strike"], tau, row["mid"], max(row["spread"], 0.01), row["type"])
+        for _, row in m.iterrows()
+    ]
+
+
 def calibrate_heston(market_rows, S0, r, q, n_candidatos=25, n_refinar=4, seed=1):
     """market_rows: list of tuples (K, tau, price_mkt, spread, option_type).
 
@@ -47,12 +78,9 @@ def calibrate_heston(market_rows, S0, r, q, n_candidatos=25, n_refinar=4, seed=1
                 res.append(1e3)
         return res
 
-    def loss(params):
-        return sum(x**2 for x in residuals(params))
-
     muestra = qmc.LatinHypercube(d=len(HESTON_BOUNDS), seed=seed).random(n_candidatos)
     candidatos = lb + muestra * (ub - lb)
-    perdidas = [loss(c) for c in candidatos]
+    perdidas = [heston_loss(c, market_rows, S0, r, q) for c in candidatos]
     mejores_idx = np.argsort(perdidas)[:n_refinar]
 
     mejor_fit = None

@@ -14,7 +14,7 @@ from plots.surface_plots import make_surface_figure
 from utils.styling import inject_css
 from utils.context import render_sidebar_controls, render_ticker_strip, get_heston_calibration
 
-st.set_page_config(page_title="Volatility Smile · Options Analytics Dashboard", page_icon="🌊", layout="wide")
+st.set_page_config(page_title="Volatility Smile · Options Analytics Dashboard", page_icon="◆", layout="wide")
 inject_css()
 
 ctx = render_sidebar_controls()
@@ -23,7 +23,7 @@ render_ticker_strip(ctx)
 st.markdown(
     f"""
     <div class="desk-header">
-        <h1>🌊 Panel 3 · Sonrisa de Volatilidad</h1>
+        <h1>Panel 3 · Sonrisa de Volatilidad</h1>
         <p>{ctx.ticker} &middot; {ctx.option_type.upper()} &middot; exp {ctx.expiry}</p>
     </div>
     """,

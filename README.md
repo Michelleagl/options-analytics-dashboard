@@ -9,12 +9,13 @@ validated against live market quotes.
 ```
 app.py                  Entry point / landing page (sidebar controls live here)
 pages/                  One Streamlit page per panel (native multi-page app)
-  1_📈_Pricing.py         Panel 1 — price vs market, error by engine
-  2_📊_Greeks.py           Panel 2 — Δ Γ ν Θ ρ, Vanna, Volga
-  3_🌊_Volatility_Smile.py Panel 3 — the smile, B&S flat line vs Heston, 3D surface bonus
-  4_⚙️_Calibration.py      Calibrated Heston params, Feller check, day-over-day stability
-  5_💼_Portfolio.py        2-4 leg book, net Greeks, delta-hedge estimate
-  6_🎯_Live_Defense.py     One screen for defending a contract on the spot
+  1_Pricing.py            Panel 1 — price vs market, error by engine
+  2_Greeks.py              Panel 2 — Δ Γ ν Θ ρ, Vanna, Volga
+  3_Volatility_Smile.py    Panel 3 — the smile, B&S flat line vs Heston, 3D surface bonus
+  4_Calibration.py         Calibrated Heston params, Feller check, day-over-day stability,
+                           kappa-xi identifiability valley plot
+  5_Portfolio.py           2-4 leg book, net Greeks, delta-hedge estimate
+  6_Live_Defense.py        One screen for defending a contract on the spot
 models/                 Pure pricing math: black_scholes.py, heston.py, greeks.py,
                         calibration.py, recommendation.py — no Streamlit, no I/O
 data/                   yfinance/FRED fetch + cleaning + smile/surface calculations

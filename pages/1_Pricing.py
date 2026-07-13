@@ -10,7 +10,7 @@ from plots.pricing_plots import make_price_vs_strike_figure
 from utils.styling import inject_css
 from utils.context import render_sidebar_controls, render_ticker_strip, get_heston_calibration
 
-st.set_page_config(page_title="Pricing · Options Analytics Dashboard", page_icon="📈", layout="wide")
+st.set_page_config(page_title="Pricing · Options Analytics Dashboard", page_icon="◆", layout="wide")
 inject_css()
 
 ctx = render_sidebar_controls()
@@ -19,7 +19,7 @@ render_ticker_strip(ctx)
 st.markdown(
     f"""
     <div class="desk-header">
-        <h1>📈 Panel 1 · Pricing &amp; Validación</h1>
+        <h1>Panel 1 · Pricing &amp; Validación</h1>
         <p>{ctx.ticker} &middot; {ctx.option_type.upper()} K={ctx.strike:g} &middot; exp {ctx.expiry}</p>
     </div>
     """,

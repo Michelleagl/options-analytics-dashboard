@@ -19,7 +19,7 @@ from models.heston import heston_price
 from utils.styling import inject_css
 from utils.context import render_sidebar_controls, render_ticker_strip, calibrate_heston_for
 
-st.set_page_config(page_title="Portfolio · Options Analytics Dashboard", page_icon="💼", layout="wide")
+st.set_page_config(page_title="Portfolio · Options Analytics Dashboard", page_icon="◆", layout="wide")
 inject_css()
 
 ctx = render_sidebar_controls()
@@ -28,7 +28,7 @@ render_ticker_strip(ctx)
 st.markdown(
     f"""
     <div class="desk-header">
-        <h1>💼 Panel 5 · Portfolio Greeks</h1>
+        <h1>Panel 5 · Portfolio Greeks</h1>
         <p>Libro de 2-4 contratos sobre {ctx.ticker}</p>
     </div>
     """,

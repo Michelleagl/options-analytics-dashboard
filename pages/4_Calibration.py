@@ -8,15 +8,18 @@ limitation note below about why that history is built locally rather than from p
 historical data.
 """
 
+import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-from models.calibration import feller_condition, log_calibration_snapshot, load_calibration_history, HESTON_NAMES
+from models.calibration import (
+    feller_condition, log_calibration_snapshot, load_calibration_history, HESTON_NAMES, heston_loss,
+)
 from utils.styling import ACCENT, ACCENT_2, TEXT_DIM, WARN, DANGER, apply_dark_layout, inject_css
-from utils.context import render_sidebar_controls, render_ticker_strip, get_heston_calibration
+from utils.context import render_sidebar_controls, render_ticker_strip, get_heston_calibration, get_calibration_rows_for
 
-st.set_page_config(page_title="Calibration · Options Analytics Dashboard", page_icon="⚙", layout="wide")
+st.set_page_config(page_title="Calibration · Options Analytics Dashboard", page_icon="◆", layout="wide")
 inject_css()
 
 ctx = render_sidebar_controls()
@@ -25,7 +28,7 @@ render_ticker_strip(ctx)
 st.markdown(
     f"""
     <div class="desk-header">
-        <h1>⚙ Panel 4 · Calibración de Heston</h1>
+        <h1>Panel 4 · Calibración de Heston</h1>
         <p>{ctx.ticker} &middot; exp {ctx.expiry}</p>
     </div>
     """,
@@ -88,6 +91,39 @@ with st.expander("¿Por qué la calibración a veces 'se mueve' entre corridas? 
         - Usar más de un vencimiento simultáneamente — la estructura temporal ayuda a separar κ de ξ.
         """
     )
+
+    st.caption(
+        "El texto de arriba lo describe; el mapa de abajo lo muestra: barre (κ, ξ) en una malla, fija "
+        "v₀, θ y ρ en los valores calibrados hoy, y grafica log₁₀(pérdida) en cada punto contra las quotes "
+        "reales que se usaron para calibrar -- la misma técnica del notebook de identificabilidad del curso."
+    )
+    show_valley = st.checkbox("Calcular el valle κ-ξ (una malla ~20×20, puede tardar 10-20s)")
+    if show_valley:
+        rows_for_valley = get_calibration_rows_for(ctx.ticker, ctx.expiry, ctx.S0)
+        with st.spinner("Barriendo (κ, ξ) y repriciando contra el mercado en cada punto..."):
+            kappas = np.linspace(0.2, 6.0, 20)
+            xis = np.linspace(0.05, 1.5, 20)
+            KK, XX = np.meshgrid(kappas, xis)
+            L = np.zeros_like(KK)
+            for a in range(KK.shape[0]):
+                for b in range(KK.shape[1]):
+                    L[a, b] = heston_loss((v0, theta, KK[a, b], XX[a, b], rho), rows_for_valley, ctx.S0, ctx.r, ctx.q)
+
+        fig_valley = go.Figure(data=go.Contour(
+            x=kappas, y=xis, z=np.log10(L + 1e-12),
+            colorscale="Viridis", contours=dict(showlabels=False),
+            colorbar=dict(title="log₁₀(pérdida)"),
+        ))
+        fig_valley.add_trace(go.Scatter(
+            x=[kappa], y=[xi], mode="markers", name="Calibrado hoy",
+            marker=dict(color="white", size=12, symbol="star", line=dict(color="black", width=1)),
+        ))
+        fig_valley.update_layout(xaxis_title="κ (kappa)", yaxis_title="ξ (xi)")
+        st.plotly_chart(apply_dark_layout(fig_valley, height=420, legend_top=False), use_container_width=True)
+        st.caption(
+            "Si la zona oscura (pérdida baja) forma una curva alargada en vez de un punto compacto, eso "
+            "*es* el valle: muchos (κ, ξ) distintos explican casi igual de bien las mismas quotes de mercado."
+        )
 
 st.markdown("---")
 st.markdown("##### Chequeo de estabilidad día a día")

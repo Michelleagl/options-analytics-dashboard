@@ -16,7 +16,7 @@ import streamlit as st
 
 from data.market_data import get_underlying_info, get_clean_chain, tau_from_expiry
 from data.riskfree import get_risk_free_rate
-from models.calibration import calibrate_heston
+from models.calibration import calibrate_heston, build_calibration_rows
 from utils.helpers import parse_occ_symbol, init_session_state
 
 
@@ -184,24 +184,25 @@ def render_sidebar_controls():
 
 
 @st.cache_data(ttl=1800, show_spinner=False)
+def get_calibration_rows_for(ticker, expiry, S0):
+    """The same liquid, near-the-money quotes calibrate_heston_for fits -- exposed on
+    its own so pages/4_Calibration.py can recompute the loss landscape (kappa-xi
+    identifiability plot) against the exact same market data used to calibrate."""
+    try:
+        df = get_clean_chain(ticker, expiry)
+    except Exception:
+        return []
+    tau_ = tau_from_expiry(expiry)
+    return build_calibration_rows(df, S0, tau_)
+
+
+@st.cache_data(ttl=1800, show_spinner=False)
 def calibrate_heston_for(ticker, expiry, S0, r, q):
     """Cached Heston calibration keyed on plain (ticker, expiry, S0, r, q) -- usable
     outside an AppContext too, e.g. per-leg in the Portfolio page where each leg can
     have its own expiry. Returns (params, fit_obj) or (None, None) if there weren't
     enough liquid quotes to calibrate."""
-    try:
-        df = get_clean_chain(ticker, expiry)
-    except Exception:
-        return None, None
-    tau_ = tau_from_expiry(expiry)
-    moneyness = df["strike"] / S0
-    m = df[(moneyness >= 0.80) & (moneyness <= 1.20) & (df["mid"] > 0.05)]
-    if len(m) < 5:
-        m = df[df["mid"] > 0.02]  # relax if there are too few quotes
-    rows = [
-        (row["strike"], tau_, row["mid"], max(row["spread"], 0.01), row["type"])
-        for _, row in m.iterrows()
-    ]
+    rows = get_calibration_rows_for(ticker, expiry, S0)
     if len(rows) < 5:
         return None, None
     params, fit_obj = calibrate_heston(rows, S0, r, q, n_candidatos=20, n_refinar=4)
