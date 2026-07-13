@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+.streamlit/secrets.toml
+.calibration_history/
+.certs/
+.pytest_cache/
+*.egg-info/
+.DS_Store
+Thumbs.db

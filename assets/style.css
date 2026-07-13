@@ -1,0 +1,140 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+html, body, [class*="css"] {
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+:root {
+    --navy: #0B1220;
+    --panel: #121A2B;
+    --panel-border: #223049;
+    --panel-border-bright: #2E4066;
+    --accent: #3B82C4;
+    --accent-2: #1FAE85;
+    --warn: #D9822B;
+    --danger: #D9534F;
+    --text: #EAF2FB;
+    --text-dim: #8492A6;
+}
+
+.stApp {
+    background: linear-gradient(180deg, #0B1220 0%, #0E1626 100%);
+}
+
+section[data-testid="stSidebar"] {
+    background: var(--panel);
+    border-right: 1px solid var(--panel-border);
+}
+
+h1, h2, h3 { font-family: 'Space Grotesk', sans-serif !important; font-weight: 600 !important; }
+
+/* Denser headings: terminals don't waste vertical space */
+h3 { margin-top: 0.4rem !important; margin-bottom: 0.6rem !important; letter-spacing: 0.01em; }
+
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+/* Uppercase, letter-spaced, monospace labels everywhere data appears -- the terminal tell */
+.stRadio label, .stSelectbox label, .stTextInput label, [data-testid="stMetricLabel"] {
+    font-family: 'JetBrains Mono', monospace !important;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.78rem !important;
+    color: var(--text-dim) !important;
+}
+
+/* Persistent ticker-strip header: dense, monospace, grid-like top bar */
+.ticker-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1.4rem;
+    align-items: baseline;
+    background: #0A0F1A;
+    border: 1px solid var(--panel-border);
+    border-left: 3px solid var(--accent);
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    margin-bottom: 0.9rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.83rem;
+}
+.ticker-strip .tk-item { color: var(--text-dim); white-space: nowrap; }
+.ticker-strip .tk-item b { color: var(--text); font-weight: 600; }
+.ticker-strip .tk-up { color: var(--accent-2); }
+.ticker-strip .tk-down { color: var(--danger); }
+
+.desk-header {
+    padding: 0.9rem 1.4rem;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #14304F 0%, #0F2138 100%);
+    border: 1px solid var(--panel-border);
+    border-bottom: 2px solid var(--accent);
+    margin-bottom: 1rem;
+}
+.desk-header h1 { color: var(--text); font-size: 1.4rem; margin: 0; letter-spacing: 0.01em; }
+.desk-header p {
+    color: var(--text-dim); margin: 0.2rem 0 0 0; font-size: 0.85rem;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Panels form a hairline grid, like a terminal's boxed layout */
+.metric-card {
+    background: var(--panel);
+    border: 1px solid var(--panel-border);
+    border-radius: 4px;
+    padding: 0.8rem 1rem;
+    height: 100%;
+}
+.metric-card:hover { border-color: var(--panel-border-bright); }
+.metric-card .label {
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.3rem;
+}
+.metric-card .value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text);
+}
+.metric-card .sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    margin-top: 0.2rem;
+}
+
+.tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    padding: 0.12rem 0.5rem;
+    border-radius: 3px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+.tag-accent { background: rgba(59,130,196,0.18); color: #7FB8E8; }
+.tag-good { background: rgba(31,174,133,0.18); color: #5FDCB4; }
+.tag-warn { background: rgba(217,130,43,0.18); color: #F0A85C; }
+.tag-danger { background: rgba(217,83,79,0.18); color: #F09A97; }
+
+.interp-box {
+    background: var(--panel);
+    border-left: 3px solid var(--accent);
+    border: 1px solid var(--panel-border);
+    border-radius: 4px;
+    padding: 0.9rem 1.1rem;
+    color: #C9D6E5;
+    font-size: 0.93rem;
+    line-height: 1.5;
+}
+
+/* Function-key style page nav in the sidebar */
+[data-testid="stSidebarNav"] a {
+    font-family: 'JetBrains Mono', monospace !important;
+    letter-spacing: 0.02em;
+}
+
+hr { border-color: var(--panel-border) !important; }
