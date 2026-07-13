@@ -35,7 +35,29 @@ class AppContext:
     strikes_available: list = field(default_factory=list)
 
 
+def _seed_from_query_params():
+    """On a brand-new session (fresh browser tab, page refresh, or a Streamlit Cloud
+    app waking back up), st.session_state starts empty even though the URL may still
+    carry the last-used selection (written by the block at the end of
+    render_sidebar_controls). Seed session_state from the URL in that case, before
+    init_session_state()'s defaults would otherwise win. Once a session has state,
+    normal widget interaction always takes over -- this only matters on the first run."""
+    qp = st.query_params
+    if "ticker_input" not in st.session_state and qp.get("ticker"):
+        st.session_state["ticker_input"] = qp.get("ticker")
+    if "expiry_select" not in st.session_state and qp.get("expiry"):
+        st.session_state["expiry_select"] = qp.get("expiry")
+    if "type_radio" not in st.session_state and qp.get("type") in ("call", "put"):
+        st.session_state["type_radio"] = qp.get("type")
+    if "strike_select" not in st.session_state and qp.get("strike"):
+        try:
+            st.session_state["strike_select"] = float(qp.get("strike"))
+        except ValueError:
+            pass
+
+
 def render_sidebar_controls():
+    _seed_from_query_params()
     init_session_state()
     st.sidebar.markdown("## ⚙ Configuración del contrato")
 
@@ -128,6 +150,14 @@ def render_sidebar_controls():
         st.session_state["strike_select"] = strikes_available[atm_idx]
 
     strike = st.sidebar.selectbox("Strike (K)", strikes_available, key="strike_select")
+
+    # Mirror the current selection into the URL so it survives a full reload / a new
+    # session (browser refresh, Streamlit Cloud waking the app up), not just
+    # in-session page-to-page navigation -- see _seed_from_query_params above.
+    st.query_params["ticker"] = ticker
+    st.query_params["expiry"] = expiry
+    st.query_params["type"] = option_type
+    st.query_params["strike"] = str(strike)
 
     r = get_risk_free_rate()
     tau = tau_from_expiry(expiry)
