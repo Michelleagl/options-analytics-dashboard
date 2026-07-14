@@ -1,10 +1,10 @@
-"""Section — Live Defense summary.
+"""Section — Summary.
 
 One clean block for the moment the professor hands you a ticker and a contract on the
 spot (brief slides 18-19): price from both engines vs market, every Greek, the
 recommended engine with a one-line justification (Trader feedback, slide 24), Feller
 status, and an auto-composed set of talking points so you have something to read from
-while you reason out loud.
+while you reason out loud during the live defense.
 """
 
 import numpy as np

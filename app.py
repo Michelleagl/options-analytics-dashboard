@@ -5,7 +5,7 @@ Motores: Black-Scholes-Merton y Heston (stochastic vol)
 
 Un solo dashboard continuo (sin tabs): la barra lateral fija el ticker/vencimiento/
 strike una vez, y cada fase del análisis (pricing, Greeks, sonrisa, calibración,
-portfolio, defensa en vivo) es una sección de la misma página, en el mismo orden que
+portfolio, resumen) es una sección de la misma página, en el mismo orden que
 el mandato del proyecto las pide.
 
 Ejecutar con:  streamlit run app.py
@@ -17,7 +17,7 @@ import streamlit as st
 
 from utils.styling import inject_css
 from utils.context import render_sidebar_controls, render_ticker_strip, get_heston_calibration
-from sections import pricing, greeks, smile, calibration, portfolio, live_defense
+from sections import pricing, greeks, smile, calibration, portfolio, summary
 
 warnings.filterwarnings("ignore")
 
@@ -37,7 +37,7 @@ st.markdown(
     <div class="desk-header">
         <h1>◆ Options Analytics Dashboard</h1>
         <p>{ctx.ticker} &middot; {ctx.option_type.upper()} K={ctx.strike:g} &middot; exp {ctx.expiry}
-        &mdash; pricing, Greeks, sonrisa, calibración, portfolio y defensa en vivo, todo para el mismo contrato</p>
+        &mdash; pricing, Greeks, sonrisa, calibración, portfolio y resumen, todo para el mismo contrato</p>
     </div>
     """,
     unsafe_allow_html=True,
@@ -51,7 +51,7 @@ st.markdown(
         <a href="#smile">Volatility Smile</a>
         <a href="#calibration">Calibration</a>
         <a href="#portfolio">Portfolio</a>
-        <a href="#live-defense">Live Defense</a>
+        <a href="#summary">Summary</a>
     </div>
     """,
     unsafe_allow_html=True,
@@ -87,5 +87,5 @@ st.markdown('<h2 class="section-title" id="portfolio">Portfolio Greeks</h2>', un
 portfolio.render(ctx)
 
 st.markdown("---")
-st.markdown('<h2 class="section-title" id="live-defense">Live Defense</h2>', unsafe_allow_html=True)
-live_defense.render(ctx, heston_params, fit_obj)
+st.markdown('<h2 class="section-title" id="summary">Summary</h2>', unsafe_allow_html=True)
+summary.render(ctx, heston_params, fit_obj)

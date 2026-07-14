@@ -21,7 +21,7 @@ sections/               One render(ctx, heston_params, fit_obj) function per pha
   calibration.py            Calibrated params, Feller check, day-over-day stability,
                              kappa-xi identifiability valley plot
   portfolio.py               2-4 leg book, net Greeks, delta-hedge estimate
-  live_defense.py            One-block summary + talking points for defending a contract
+  summary.py                 One-block summary + talking points for defending a contract
 models/                 Pure pricing math: black_scholes.py, heston.py, greeks.py,
                         calibration.py, recommendation.py — no Streamlit, no I/O
 data/                   yfinance/FRED fetch + cleaning + smile/surface calculations

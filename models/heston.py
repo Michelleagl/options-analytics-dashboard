@@ -2,6 +2,14 @@
 
 Uses the "Little Trap" (g2) formulation of the characteristic function to avoid
 the branch-cut discontinuities of the naive complex logarithm (Albrecher et al. 2007).
+
+Priced via scipy's adaptive quadrature rather than a fixed quadrature grid: a fixed
+grid (e.g. 128-node Gauss-Legendre over a fixed u_max) was tried and is faster, but
+the characteristic function's decay rate in u depends on tau, so a single fixed grid
+is inaccurate for short-dated contracts and can even return a negative price for a
+deep-OTM short-dated option -- exactly the kind of contract this app is built to
+examine (see the Volatility Smile and Live Defense sections). Adaptive quadrature is
+slower per call but self-adjusts its refinement to whatever tau/moneyness it's given.
 """
 
 import numpy as np
