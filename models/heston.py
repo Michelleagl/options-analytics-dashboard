@@ -19,6 +19,7 @@ is inaccurate for short-dated contracts. Adaptive quadrature is slower per call 
 self-adjusts its refinement to whatever tau/moneyness it's given.
 """
 import numpy as np
+from scipy.integrate import quad
 
 def heston_cf_j(u, j, x, v, tau, r, q, kappa, theta, xi, rho):
     i = 1j
