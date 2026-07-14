@@ -13,6 +13,7 @@ Ejecutar con:  streamlit run app.py
 
 import warnings
 
+import numpy as np
 import streamlit as st
 
 from utils.styling import inject_css
@@ -31,6 +32,31 @@ inject_css()
 
 ctx = render_sidebar_controls()
 render_ticker_strip(ctx)
+
+# ---------- Contract snapshot: Last / Bid / Ask / Market IV for the selected contract ----------
+row_sel = ctx.sub_chain[ctx.sub_chain["strike"] == ctx.strike].iloc[0]
+last_price = row_sel.get("lastPrice", np.nan)
+market_iv = row_sel.get("impliedVolatility", np.nan)
+
+snap_specs = [
+    ("Last", f"${last_price:,.2f}" if not np.isnan(last_price) else "—", None),
+    ("Bid", f"${row_sel['bid']:,.2f}", None),
+    ("Ask", f"${row_sel['ask']:,.2f}", None),
+    ("Market IV", f"{market_iv*100:.1f}%" if not np.isnan(market_iv) else "—", "#5FDCB4"),
+]
+snap_cols = st.columns(4)
+for col, (label, value, color) in zip(snap_cols, snap_specs):
+    style = f" color:{color};" if color else ""
+    col.markdown(
+        f"""
+        <div class="metric-card">
+            <div class="label">{label}</div>
+            <div class="value" style="font-size:1.3rem;{style}">{value}</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+st.write("")
 
 st.markdown(
     f"""

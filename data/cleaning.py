@@ -12,7 +12,7 @@ import pandas as pd
 def clean_option_rows(calls_df, puts_df):
     """calls_df/puts_df: raw yfinance option_chain().calls / .puts DataFrames.
     Returns a tidy DataFrame with columns:
-    strike, type, bid, ask, mid, spread, volume, openInterest, impliedVolatility.
+    strike, type, bid, ask, mid, spread, lastPrice, volume, openInterest, impliedVolatility.
     """
     rows = []
     for df, otype in [(calls_df, "call"), (puts_df, "put")]:
@@ -35,6 +35,7 @@ def clean_option_rows(calls_df, puts_df):
                     "ask": ask,
                     "mid": mid,
                     "spread": spread,
+                    "lastPrice": row.get("lastPrice", float("nan")),
                     "volume": vol,
                     "openInterest": row.get("openInterest", 0),
                     "impliedVolatility": row.get("impliedVolatility", float("nan")),
