@@ -89,7 +89,7 @@ def render(ctx, heston_params, fit_obj):
 
     # ---------- Auto-composed talking points ----------
     st.markdown("---")
-    st.markdown("##### Puntos para defender en voz alta")
+    st.markdown("##### Recommendations")
 
     closer = "Heston" if abs(err_heston_rel) < abs(err_bs_rel) else "Black & Scholes"
     money_word = "cerca del dinero" if abs(moneyness - 1) <= 0.03 else ("fuera del dinero" if (moneyness < 1) == (ctx.option_type == "put") else "dentro del dinero")
