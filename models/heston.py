@@ -18,6 +18,8 @@ the characteristic function's decay rate in u depends on tau, so a single fixed 
 is inaccurate for short-dated contracts. Adaptive quadrature is slower per call but
 self-adjusts its refinement to whatever tau/moneyness it's given.
 """
+import numpy as np
+
 def heston_cf_j(u, j, x, v, tau, r, q, kappa, theta, xi, rho):
     i = 1j
     uj = 0.5 if j == 1 else -0.5
