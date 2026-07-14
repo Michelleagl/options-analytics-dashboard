@@ -1,6 +1,6 @@
 """Heston calibration: two-stage global (Latin Hypercube) + local (Levenberg-Marquardt)
 optimisation, Feller-condition check, and a local day-over-day snapshot log used for
-the calibration-stability check (see pages/4_Calibration.py).
+the calibration-stability check (see sections/calibration.py).
 
 Limitation, stated explicitly: free data sources (yfinance) only give a live snapshot,
 not historical option chains. "Re-calibrate on two different days" therefore means the
@@ -28,7 +28,7 @@ _HISTORY_DIR = Path(__file__).resolve().parent.parent / ".calibration_history"
 def heston_loss(params, market_rows, S0, r, q):
     """Sum of spread-weighted squared price residuals -- the calibration objective.
     Exposed standalone (not just as a closure inside calibrate_heston) so it can also
-    drive the kappa-xi identifiability valley plot on pages/4_Calibration.py, the same
+    drive the kappa-xi identifiability valley plot on sections/calibration.py, the same
     way the course notebook reuses its loss() for both calibration and diagnostics."""
     v0, theta, kappa, xi, rho = params
     total = 0.0

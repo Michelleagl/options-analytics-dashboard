@@ -62,6 +62,46 @@ h3 { margin-top: 0.4rem !important; margin-bottom: 0.6rem !important; letter-spa
 .ticker-strip .tk-up { color: var(--accent-2); }
 .ticker-strip .tk-down { color: var(--danger); }
 
+/* Quick-jump nav for the single-page layout: no tabs, just anchor links down
+   the same continuous page. */
+.section-nav {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 0.5rem;
+    background: #0A0F1A;
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    padding: 0.55rem 0.8rem;
+    margin-bottom: 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+}
+.section-nav a {
+    color: var(--text-dim);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    border: 1px solid transparent;
+}
+.section-nav a:hover {
+    color: var(--text);
+    background: rgba(59,130,196,0.15);
+    border-color: var(--panel-border-bright);
+}
+
+/* Section headers: a hairline rule under each phase title reinforces the
+   single-page-with-sections structure without needing tab chrome. */
+.section-title {
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 0.3rem;
+    margin-top: 0.5rem;
+}
+
 .desk-header {
     padding: 0.9rem 1.4rem;
     border-radius: 8px;
@@ -129,12 +169,6 @@ h3 { margin-top: 0.4rem !important; margin-bottom: 0.6rem !important; letter-spa
     color: #C9D6E5;
     font-size: 0.93rem;
     line-height: 1.5;
-}
-
-/* Function-key style page nav in the sidebar */
-[data-testid="stSidebarNav"] a {
-    font-family: 'JetBrains Mono', monospace !important;
-    letter-spacing: 0.02em;
 }
 
 hr { border-color: var(--panel-border) !important; }

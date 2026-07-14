@@ -6,16 +6,22 @@ validated against live market quotes.
 
 ## Structure
 
+One continuous page, not tabs: the sidebar fixes the ticker/expiry/strike once, and
+every phase of the analysis is a section stacked on that same page, in the order the
+project brief asks for them. A sticky quick-jump bar at the top links down to each
+section (`#pricing`, `#greeks`, ...) since there's no tab chrome to click between.
+
 ```
-app.py                  Entry point / landing page (sidebar controls live here)
-pages/                  One Streamlit page per panel (native multi-page app)
-  1_Pricing.py            Panel 1 — price vs market, error by engine
-  2_Greeks.py              Panel 2 — Δ Γ ν Θ ρ, Vanna, Volga
-  3_Volatility_Smile.py    Panel 3 — the smile, B&S flat line vs Heston, 3D surface bonus
-  4_Calibration.py         Calibrated Heston params, Feller check, day-over-day stability,
-                           kappa-xi identifiability valley plot
-  5_Portfolio.py           2-4 leg book, net Greeks, delta-hedge estimate
-  6_Live_Defense.py        One screen for defending a contract on the spot
+app.py                  Entry point: sidebar once, quick-jump nav, calibrates Heston
+                         once, then renders every section in order
+sections/               One render(ctx, heston_params, fit_obj) function per phase
+  pricing.py               Price vs market, error by engine
+  greeks.py                Δ Γ ν Θ ρ, Vanna, Volga
+  smile.py                  The smile, B&S flat line vs Heston, 3D surface bonus
+  calibration.py            Calibrated params, Feller check, day-over-day stability,
+                             kappa-xi identifiability valley plot
+  portfolio.py               2-4 leg book, net Greeks, delta-hedge estimate
+  live_defense.py            One-block summary + talking points for defending a contract
 models/                 Pure pricing math: black_scholes.py, heston.py, greeks.py,
                         calibration.py, recommendation.py — no Streamlit, no I/O
 data/                   yfinance/FRED fetch + cleaning + smile/surface calculations
@@ -33,8 +39,9 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Ticker/expiry/strike selection lives in the sidebar and is shared across all six
-pages via `st.session_state` (see `utils/context.py`).
+Ticker/expiry/strike selection lives in the sidebar and applies to every section on
+the page — it's fetched and calibrated once per run (see `utils/context.py`), not
+once per section.
 
 ## Testing
 
@@ -55,7 +62,7 @@ isn't asserted — kappa/theta/xi sit in a known flat, poorly-identified valley)
   correctly rejects that as required by the brief ("drop zero-bid rows") — you'll
   see a "no liquid quotes" message rather than a chart. Re-run during market hours,
   or use a cached snapshot.
-- **No historical option chains.** The Calibration page's day-over-day stability
+- **No historical option chains.** The Calibration section's day-over-day stability
   check (`models/calibration.py: log_calibration_snapshot` /
   `load_calibration_history`) builds its own local history one run at a time,
   since free data sources only expose a live snapshot, not a historical surface.

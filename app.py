@@ -3,6 +3,11 @@ Options Analytics Dashboard
 Quantitative Finance — ITESO
 Motores: Black-Scholes-Merton y Heston (stochastic vol)
 
+Un solo dashboard continuo (sin tabs): la barra lateral fija el ticker/vencimiento/
+strike una vez, y cada fase del análisis (pricing, Greeks, sonrisa, calibración,
+portfolio, defensa en vivo) es una sección de la misma página, en el mismo orden que
+el mandato del proyecto las pide.
+
 Ejecutar con:  streamlit run app.py
 """
 
@@ -12,6 +17,7 @@ import streamlit as st
 
 from utils.styling import inject_css
 from utils.context import render_sidebar_controls, render_ticker_strip, get_heston_calibration
+from sections import pricing, greeks, smile, calibration, portfolio, live_defense
 
 warnings.filterwarnings("ignore")
 
@@ -27,10 +33,11 @@ ctx = render_sidebar_controls()
 render_ticker_strip(ctx)
 
 st.markdown(
-    """
+    f"""
     <div class="desk-header">
         <h1>◆ Options Analytics Dashboard</h1>
-        <p>Derivatives desk · pricing, Greeks, smile calibration and portfolio risk for equity options</p>
+        <p>{ctx.ticker} &middot; {ctx.option_type.upper()} K={ctx.strike:g} &middot; exp {ctx.expiry}
+        &mdash; pricing, Greeks, sonrisa, calibración, portfolio y defensa en vivo, todo para el mismo contrato</p>
     </div>
     """,
     unsafe_allow_html=True,
@@ -38,42 +45,17 @@ st.markdown(
 
 st.markdown(
     """
-    <div class="interp-box">
-    Selecciona un ticker, vencimiento y strike en la barra lateral — esa selección se mantiene
-    al navegar entre páginas. Usa el menú de la izquierda para moverte entre las seis funciones
-    del dashboard.
+    <div class="section-nav">
+        <a href="#pricing">Pricing</a>
+        <a href="#greeks">Greeks</a>
+        <a href="#smile">Volatility Smile</a>
+        <a href="#calibration">Calibration</a>
+        <a href="#portfolio">Portfolio</a>
+        <a href="#live-defense">Live Defense</a>
     </div>
     """,
     unsafe_allow_html=True,
 )
-
-st.write("")
-
-pages = [
-    ("Pricing", "Precio de B&S y Heston lado a lado con el mercado, error absoluto/relativo por motor."),
-    ("Greeks", "Δ, Γ, ν, Θ, ρ, Vanna y Volga — de forma cerrada en B&S, bump-and-reprice en Heston."),
-    ("Volatility Smile", "La sonrisa de volatilidad: mercado vs B&S (línea plana) vs Heston calibrado, "
-                          "más una superficie 3D bonus a través de varios vencimientos."),
-    ("Calibration", "Parámetros calibrados de Heston, condición de Feller, y un chequeo de estabilidad "
-                     "día-a-día de la calibración."),
-    ("Portfolio", "Arma un libro de 2-4 contratos y ve las Greeks netas, el hedge de Delta y el costo "
-                   "de mantenerte Gamma-neutral."),
-    ("Live Defense", "Pantalla única para la defensa en vivo: precio, Greeks, motor recomendado y "
-                       "justificación para cualquier contrato que pida el profesor."),
-]
-
-cols = st.columns(3)
-for i, (title, desc) in enumerate(pages):
-    with cols[i % 3]:
-        st.markdown(
-            f"""
-            <div class="metric-card" style="margin-bottom:1rem;">
-                <div class="label">{title}</div>
-                <div class="sub" style="color:#C9D6E5; font-size:0.85rem; line-height:1.4;">{desc}</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
 
 with st.spinner("Calibrando Heston a la sonrisa de este vencimiento..."):
     heston_params, fit_obj = get_heston_calibration(ctx)
@@ -81,10 +63,29 @@ with st.spinner("Calibrando Heston a la sonrisa de este vencimiento..."):
 if heston_params is None:
     st.warning(
         "No hay suficientes quotes líquidas para calibrar Heston en este vencimiento. "
-        "Prueba otro expiry o ticker más líquido antes de entrar a las demás páginas."
+        "Prueba otro expiry o ticker más líquido en el sidebar."
     )
-else:
-    st.caption(
-        "Heston ya está calibrado para esta combinación de ticker/vencimiento — las demás páginas "
-        "reutilizan este resultado (cacheado) sin recalcular."
-    )
+    st.stop()
+
+st.markdown('<h2 class="section-title" id="pricing">Pricing &amp; Validación</h2>', unsafe_allow_html=True)
+pricing.render(ctx, heston_params, fit_obj)
+
+st.markdown("---")
+st.markdown('<h2 class="section-title" id="greeks">Las Greeks</h2>', unsafe_allow_html=True)
+greeks.render(ctx, heston_params, fit_obj)
+
+st.markdown("---")
+st.markdown('<h2 class="section-title" id="smile">Sonrisa de Volatilidad</h2>', unsafe_allow_html=True)
+smile.render(ctx, heston_params, fit_obj)
+
+st.markdown("---")
+st.markdown('<h2 class="section-title" id="calibration">Calibración de Heston</h2>', unsafe_allow_html=True)
+calibration.render(ctx, heston_params, fit_obj)
+
+st.markdown("---")
+st.markdown('<h2 class="section-title" id="portfolio">Portfolio Greeks</h2>', unsafe_allow_html=True)
+portfolio.render(ctx)
+
+st.markdown("---")
+st.markdown('<h2 class="section-title" id="live-defense">Live Defense</h2>', unsafe_allow_html=True)
+live_defense.render(ctx, heston_params, fit_obj)

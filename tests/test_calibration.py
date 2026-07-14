@@ -3,7 +3,7 @@
 parameters, calibrate from a different starting point, and check the fitted surface
 reproduces the synthetic market. We deliberately do NOT assert exact recovery of every
 parameter -- kappa/theta/xi are known to sit in a flat, poorly-identified valley (see
-pages/4_Calibration.py) even when the price fit is excellent. v0 and rho are the
+sections/calibration.py) even when the price fit is excellent. v0 and rho are the
 two parameters the data actually pins down, so those get a tighter check.
 """
 

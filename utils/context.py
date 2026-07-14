@@ -1,11 +1,11 @@
-"""Shared sidebar controls and per-page data/calibration context.
+"""Shared sidebar controls and data/calibration context, called once from app.py.
 
-Every page in pages/ calls render_sidebar_controls() first. It owns the ticker/OCC
-box/expiry/strike widgets (keyed into st.session_state so selections persist as the
-user navigates between pages) and returns an AppContext with everything a page needs:
-spot, rate, dividend yield, tau, the cleaned chain, and the sub-chain for the selected
-option type. This exists to avoid copy-pasting ~130 lines of sidebar logic into six
-separate page files.
+The dashboard is a single page: app.py calls render_sidebar_controls() exactly once
+(it owns the ticker/OCC box/expiry/strike widgets, keyed into st.session_state so the
+selection survives reruns) and gets back an AppContext with everything every section
+in sections/ needs: spot, rate, dividend yield, tau, the cleaned chain, and the
+sub-chain for the selected option type. This exists so that context is fetched and
+Heston is calibrated once per run, not once per section.
 """
 
 from dataclasses import dataclass, field
@@ -186,7 +186,7 @@ def render_sidebar_controls():
 @st.cache_data(ttl=1800, show_spinner=False)
 def get_calibration_rows_for(ticker, expiry, S0):
     """The same liquid, near-the-money quotes calibrate_heston_for fits -- exposed on
-    its own so pages/4_Calibration.py can recompute the loss landscape (kappa-xi
+    its own so sections/calibration.py can recompute the loss landscape (kappa-xi
     identifiability plot) against the exact same market data used to calibrate."""
     try:
         df = get_clean_chain(ticker, expiry)
