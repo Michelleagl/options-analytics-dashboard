@@ -19,7 +19,7 @@ is inaccurate for short-dated contracts. Adaptive quadrature is slower per call 
 self-adjusts its refinement to whatever tau/moneyness it's given.
 """
 
-   i = 1j
+    i = 1j
     uj = 0.5 if j == 1 else -0.5
     bj = kappa - rho * xi if j == 1 else kappa
     rd = r - q
