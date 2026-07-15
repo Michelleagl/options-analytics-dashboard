@@ -34,8 +34,8 @@ def render(ctx, heston_params, fit_obj):
         sorted(market_smile_df["strike"].tolist()), ctx.S0, ctx.r, ctx.q, ctx.tau, heston_params, ctx.option_type
     )
 
-    x_axis_choice = st.radio("Eje horizontal:", ["Moneyness (K/S₀)", "Strike (K)"], horizontal=True)
-    x_axis = "moneyness" if x_axis_choice.startswith("Moneyness") else "strike"
+    x_axis_choice = st.radio("Eje horizontal:", ["Log-Moneyness (ln(K/S₀))", "Strike (K)"], horizontal=True)
+    x_axis = "log_moneyness" if x_axis_choice.startswith("Log-Moneyness") else "strike"
 
     st.plotly_chart(
         make_smile_figure(market_smile_df, sigma_atm, heston_smile_df, ctx.S0, x_axis=x_axis),
