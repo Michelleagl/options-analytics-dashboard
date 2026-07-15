@@ -15,4 +15,5 @@ def get_risk_free_rate():
         start = end - timedelta(days=15)
         df = web.DataReader("DTB3", "fred", start, end)
         return float(df.dropna().iloc[-1, 0]) / 100.0
- 
+    except Exception:
+        return 0.045
