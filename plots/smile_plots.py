@@ -27,10 +27,18 @@ def make_smile_figure(market_df, sigma_atm, heston_df, S0, x_axis="log_moneyness
         ref_x = S0
         x_title = "Strike (K)"
 
+    # Sort by x before connecting the market dots with a line -- market_df isn't
+    # guaranteed to already be strike-ordered, and an unsorted line would zig-zag
+    # instead of tracing the smile shape left to right.
+    order = np.argsort(x_mkt.to_numpy())
+    x_mkt_sorted = x_mkt.to_numpy()[order]
+    iv_mkt_sorted = market_df["iv_market"].to_numpy()[order]
+
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=x_mkt, y=market_df["iv_market"] * 100, mode="markers",
+    fig.add_trace(go.Scatter(x=x_mkt_sorted, y=iv_mkt_sorted * 100, mode="lines+markers",
                               name="Mercado (IV implícita)",
-                              marker=dict(color=TEXT, size=8, symbol="circle")))
+                              marker=dict(color=TEXT, size=8, symbol="circle"),
+                              line=dict(color=TEXT, width=1.5)))
     fig.add_trace(go.Scatter(x=[x_mkt.min(), x_mkt.max()], y=[sigma_atm * 100, sigma_atm * 100],
                               mode="lines", name="B&S (vol plana ATM)",
                               line=dict(color=ACCENT, width=2, dash="dot")))
