@@ -56,7 +56,7 @@ def build_calibration_rows(chain_df, S0, tau):
     ]
 
 
-def calibrate_heston(market_rows, S0, r, q, n_candidatos=25, n_refinar=4, seed=1):
+def calibrate_heston(market_rows, S0, r, q, n_candidatos=30, n_refinar=10, seed=1):
     """market_rows: list of tuples (K, tau, price_mkt, spread, option_type).
 
     Stage 1: Latin Hypercube scan of the bounded parameter space (cheap, global).
