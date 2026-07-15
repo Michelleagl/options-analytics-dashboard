@@ -18,10 +18,8 @@ the characteristic function's decay rate in u depends on tau, so a single fixed 
 is inaccurate for short-dated contracts. Adaptive quadrature is slower per call but
 self-adjusts its refinement to whatever tau/moneyness it's given.
 """
-
 import numpy as np
 from scipy.integrate import quad
-
 
 def heston_cf_j(u, j, x, v, tau, r, q, kappa, theta, xi, rho):
     i = 1j
@@ -29,7 +27,7 @@ def heston_cf_j(u, j, x, v, tau, r, q, kappa, theta, xi, rho):
     bj = kappa - rho * xi if j == 1 else kappa
     rd = r - q
     A = bj - rho * xi * i * u
-    d = np.sqrt(A**2 + xi**2 * (u**2 - 2 * uj * i * u))  # principal branch: Re(d) >= 0
+    d = np.sqrt(A*2 + xi**2 * (u*2 - 2 * uj * i * u))  # sqrt principal: Re(d) >= 0
     c = (A - d) / (A + d)
     exp_neg = np.exp(-d * tau)
     Dj = ((A - d) / xi**2) * ((1 - exp_neg) / (1 - c * exp_neg))
@@ -53,7 +51,7 @@ def heston_call(S, K, r, q, tau, v0, kappa, theta, xi, rho):
     P1 = heston_prob_j(1, x, v0, tau, K, r, q, kappa, theta, xi, rho)
     P2 = heston_prob_j(2, x, v0, tau, K, r, q, kappa, theta, xi, rho)
     price = S * np.exp(-q * tau) * P1 - K * np.exp(-r * tau) * P2
-    intrinsic_floor = max(S * np.exp(-q * tau) - K * np.exp(-r * tau), 0.0)  # no-arbitrage bound
+    intrinsic_floor = max(S * np.exp(-q * tau) - K * np.exp(-r * tau), 0.0)  # cota de no-arbitraje
     return max(price, intrinsic_floor)
 
 
