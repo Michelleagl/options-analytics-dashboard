@@ -27,7 +27,7 @@ def heston_cf_j(u, j, x, v, tau, r, q, kappa, theta, xi, rho):
     bj = kappa - rho * xi if j == 1 else kappa
     rd = r - q
     A = bj - rho * xi * i * u
-    d = np.sqrt(A*2 + xi2 * (u*2 - 2 * uj * i * u))  # sqrt principal: Re(d) >= 0
+    d = np.sqrt(A*2 + xi**2 * (u*2 - 2 * uj * i * u))  # sqrt principal: Re(d) >= 0
     c = (A - d) / (A + d)
     exp_neg = np.exp(-d * tau)
     Dj = ((A - d) / xi**2) * ((1 - exp_neg) / (1 - c * exp_neg))
